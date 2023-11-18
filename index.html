@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OGQC - Biome Looting</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        #main-container, #header-container, #results{
+            transition-property: background-color;
+            transition-duration: 3s;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="header-container" class="navbar py-4 px-4 border justify-content-start">
+            <span class="navbar-brand fs-1">O Grande Quebra Cabeça</span>
+            <span class="navbar-text align-bottom fs-4 pb-0">Pilhagem de Recursos</span>
+        </div>
+    </header>
+    <main id="main-container" class="pt-3" style="height: calc(100vh - 120px);">
+        <div class="container mx-1 mx-md-5">
+            <div class="row align-itens-start">
+                <div class="col-12 col-md-3">
+                    <form action="">
+                        <select name="layer" id="layers-select" class="form-select mb-2 col-12" onchange="selectLayer($(this).val())">
+                            <option value="0" selected="selected" hidden>Selecione a Camada</option>
+                            <option value="1">Terras Médias</option>
+                            <option value="2">Cavernas</option>
+                            <option value="3"></option>
+                            <option value="4"></option>
+                            <option value="5"></option>
+                        </select>
+
+                        <!-- Default -->
+                        <select name="biome" id="biome-select-0" class="form-select mb-2 biome-select">
+                            <option value="0" selected="selected" hidden>Selecione o Bioma</option>
+                            <option value="1"></option>
+                            <option value="2"></option>
+                            <option value="3"></option>
+                            <option value="4"></option>
+                            <option value="5"></option>
+                        </select>
+
+                        <!-- Terras Médias -->
+                        <select name="biome" id="biome-select-1" class="form-select mb-2 biome-select" onchange="backAnimation($('#layers-select').val(), $(this).val())" style="display: none;">
+                            <option value="0" selected="selected" hidden>Selecione o Bioma</option>
+                            <option value="1">Floresta de Pinheiros</option>
+                            <option value="2"></option>
+                            <option value="3"></option>
+                            <option value="4"></option>
+                            <option value="5"></option>
+                        </select>
+
+                        <!-- Cavernas -->
+                        <select name="biome" id="biome-select-2" class="form-select mb-2 biome-select" onchange="backAnimation($('#layers-select').val(), $(this).val())" style="display: none;">
+                            <option value="0" selected="selected" hidden>Selecione o Bioma</option>
+                            <option value="1">Caverna Rochosa</option>
+                            <option value="2">Caverna de Lama</option>
+                            <option value="3">Caverna Cristal</option>
+                            <option value="4">Ermos Fúngicos</option>
+                            <option value="5">Caverna de Mármore</option>
+                        </select>
+
+                        <!-- Ferramentas -->
+                        <select name="tools" id="tools-select" class="form-select mb-4">
+                            <option value="0" selected="selected" hidden>Selecione a Ferramenta</option>
+                            <option value="1">À mão</option>
+                            <option value="2">Machado</option>
+                            <option value="3">Picareta</option>
+                        </select>
+
+                        <div class="col-6">
+                            <button type="button" onclick="gerar($('#layers-select').val(), $('#biome-select-'+$('#layers-select').val()).val(), $('#tools-select').val())" class="btn btn-success">Coletar!</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="results" class="col-12 col-md-9 border mt-2 mt-md-0 py-2 px-3" style="background-color: white;">
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+
+    </footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
+<script>
+
+    var layers = [
+        //Terras Médias
+        [
+            //Floresta de Pinheiros
+            [
+                //config
+                [
+                    ["#24AE49"], ["#28cd54"], ["#8DE6A5"]
+                ],
+                //mao
+                [
+                    ["Galho", "1d8"], ["Vinha", "1d4"], ["Frutas Silvestres", "1d2"], ["Rocha", "1d4"], ["Sílex", "65%"], ["Especiaria", "25%"]
+                ],
+                //machado
+                [
+                    ["Galho", "1d8"], ["Vinha", "1d4"], ["Tábua", "1d6"], ["Pinha", "1d2"]
+                ],
+                //picareta
+                [
+                    ["Rocha", "1d4+1"], ["Sílex", "1d2"]
+                ]
+            ],
+        ],
+
+        //Cavernas
+        [
+            //Caverna Rochosa
+            [
+                //config
+                [
+                    ["#AEAEAE"], ["#C2C3C2"], ["#D1D1D1"]
+                ],
+                //mao
+                [
+                    ["Rocha", "1d4"], ["Sílex", "70%"], ["Especiaria", "20%"]
+                ],
+                //machado
+                [
+                    
+                ],
+                //picareta
+                [
+                    ["Rocha", "1d8"], ["Sílex", "1d4"], ["Esmeralda", "5%"]
+                ]
+            ],
+
+            //Caverna de Lama
+            [
+                //config
+                [
+                    ["#B66C0D"], ["#C58129"], ["#D7A054"]
+                ],
+                //mao
+                [
+                    ["Rocha", "1d2"], ["Lama", "1d4"], ["Especiaria", "20%"]
+                ],
+                //machado
+                [
+                    
+                ],
+                //picareta
+                [
+                    ["Rocha", "1d2"], ["Lama", "1d6"], ["Sílex", "100%"]
+                ]
+            ],
+
+            //Caverna Cristal
+            [
+                //config
+                [
+                    ["#155d78"], ["#adedd9"], ["#ccfae2"]
+                ],
+                //mao
+                [
+                    ["Rocha", "1d8"]
+                ],
+                //machado
+                [
+                    
+                ],
+                //picareta
+                [
+                    ["Rocha", "1d8"], ["Sílex", "1d4"], ["Esmeralda", "5%"]
+                ]
+            ],
+
+            //Ermos Fúngicos
+            [
+                //config
+                [
+                    ["#614672"], ["#26a283"], ["#85c8b3"]
+                ],
+                //mao
+                [
+                    ["Cogumelo Cavernoso", "1d4"], ["Sílex", "25%"], ["Especiaria", "75%"]
+                ],
+                //machado
+                [
+                    ["Cogumelo Cavernoso", "1d8"], ["Especiaria", "100%"]
+                ],
+                //picareta
+                [
+                    ["Rocha", "1d8"], ["Sílex", "1d4"]
+                ]
+            ],
+
+            //Caverna de Mármore
+            [
+                //config
+                [
+                    ["#b1b1b1"], ["#5f5f5f"], ["#d2d2d2"]
+                ],
+                //mao
+                [
+                    ["Mármore", "1d4"], ["Especiaria", "20%"]
+                ],
+                //machado
+                [
+                    
+                ],
+                //picareta
+                [
+                    ["Mármore", "1d8"], ["Rocha", "1d4"], ["Esmeralda", "10%"]
+                ]
+            ],
+        ],
+    ];
+
+    function selectLayer(layer){
+        $('.biome-select').hide().val(0);
+        $('#biome-select-'+layer).show();
+    }
+
+    function backAnimation(layer, biome){
+        if(layer != 0 && biome != 0){
+            $('#header-container').css("background-color", layers[layer-1][biome-1][0][0]);
+            $('#main-container').css("background-color", layers[layer-1][biome-1][0][1]);
+            $('#results').css("background-color", layers[layer-1][biome-1][0][2]);
+        }
+    }
+
+    function roll(data){
+        var result = 0;
+        if(data.includes("%")){
+            var rarity = parseInt(data.replace("%", ""));
+            var rand = Math.random()*99+1;
+            if(rarity >= rand){
+                result = 1;
+            }
+        }else{
+            var dices = data.split('d');
+            var qnt = dices[0];
+            var faces = dices[1];
+            var mod = 0;
+            if(faces.includes("+")){
+                mod = faces.split('+')[1];
+                faces = faces[0];
+            }
+            for (let i = 0; i < qnt; i++) {
+                result += Math.floor(Math.random()*faces+1)+parseInt(mod);
+            }
+        }
+        return result;
+    }
+
+    function gerar(layer, biome, tool){
+        $('#results').empty();
+
+        if(layer != 0 && biome != 0 && tool != 0){
+            layers[layer-1][biome-1][tool].forEach(element => {
+                var qnt = roll(element[1]);
+                if(qnt > 0){
+                    $("#results").append('<span class="me-3">'+element[0]+': '+qnt+'</span>');
+                }
+            });
+        }
+    }
+</script>
